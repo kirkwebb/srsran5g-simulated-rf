@@ -53,8 +53,8 @@ pc.defineParameter(
     name="enable_vnc",
     description="Enable browser-based VNC server.",
     typ=portal.ParameterType.BOOLEAN,
-    defaultValue=False,
-    advanced=True,
+    defaultValue=True,
+    advanced=False,
 )
 
 params = pc.bindParameters()
@@ -171,6 +171,9 @@ if params.deployric:
     request.addOverride(Override("srsran_project_enable_du_e2", value="true"))
     request.addOverride(Override("srsran_project_e2sm_kpm_enabled", value="true"))
 
+if params.enable_vnc:
+    request.initVNC()
+
 node = request.RawPC("node")
 node.hardware_type = params.nodetype
 node.disk_image = UBUNTU_IMG
@@ -179,6 +182,8 @@ node.addService(pg.Execute(shell="sh", command=HEAD_CMD))
 node.addService(pg.Execute(shell="sh", command=GALAXY_INSTALL_CMD))
 node.addService(pg.Execute(shell="sh", command=GALAXY_INSTALL_REQS_CMD))
 node.addService(pg.Execute(shell="sh", command=TAIL_CMD))
+if params.enable_vnc:
+     node.startVNC()
 
 tour = ig.Tour()
 tour.Description(ig.Tour.MARKDOWN, tourDescription)
